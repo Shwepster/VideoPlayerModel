@@ -8,12 +8,37 @@ final class VideoPlayerModelTests: XCTestCase {
         // results.
         XCTAssertEqual(VideoPlayerModel().text, "Hello, World!")
         
+        deleteAllVideos()
+        addNewVideo()
+        addNewVideo()
+        checkForNumberOfVideos(2)
+    }
+    
+    private func deleteAllVideos() {
         let storage = AppServices.storage
-        print(storage.getVideos())
-
-        let video = VideoModel(id: UUID().uuidString, title: "Test", videoURL: URL.getPath(for: "test.MOV"))
+        let allVideos = storage.getVideos()
+        allVideos.forEach(storage.deleteVideo)
+        XCTAssertTrue(storage.getVideos().isEmpty)
+    }
+    
+    private func addNewVideo() {
+        let storage = AppServices.storage
+        let previousCount = storage.getVideos().count
+        
+        let video = VideoModel(
+            id: UUID().uuidString,
+            title: "Test",
+            videoURL: URL.getPath(for: "test.MOV")
+        )
+        
+        // Add video
         storage.saveVideo(video)
         
-        print(storage.getVideos())
+        // Check if added
+        checkForNumberOfVideos(previousCount + 1)
+    }
+    
+    private func checkForNumberOfVideos(_ number: Int) {
+        XCTAssertEqual(AppServices.storage.getVideos().count, number)
     }
 }
