@@ -21,7 +21,12 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "VideoPlayerModel",
-            dependencies: []),
+            dependencies: [],
+            resources: [
+                .process("Resources/Assets/kp2.jpg"),
+                .process("Resources/Assets/video.MOV"),
+                .process("Resources/Assets/test_video.MOV")
+            ]),
         .testTarget(
             name: "VideoPlayerModelTests",
             dependencies: ["VideoPlayerModel"]),

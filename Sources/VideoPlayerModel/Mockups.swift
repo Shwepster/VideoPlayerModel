@@ -15,32 +15,42 @@ public struct Mockups {
         .init(
             id: "23",
             title: "test 1",
-            videoURL: current.url(forResource: "video",
-                                      withExtension: "MOV")!,
-            imageURL: current.url(forResource: "kp2",
-                                      withExtension: "jpg")!
+            videoURL: current.url(
+                forResource: "video",
+                withExtension: "MOV"
+            )!,
+            imageURL: current.url(
+                forResource: "kp2",
+                withExtension: "jpg"
+            )!
         ),
         
-        .init(
-            id: "24",
-            title: "test 2",
-            videoURL: current.url(forResource: "test_video",
-                                      withExtension: "MOV")!
-        ),
+            .init(
+                id: "24",
+                title: "test 2",
+                videoURL: current.url(
+                    forResource: "test_video",
+                    withExtension: "MOV"
+                )!
+            ),
         
-        .init(
-            id: "4",
-            title: "test 2",
-            videoURL: current.url(forResource: "test_video",
-                                      withExtension: "MOV")!
-        ),
+            .init(
+                id: "4",
+                title: "test 2",
+                videoURL: current.url(
+                    forResource: "test_video",
+                    withExtension: "MOV"
+                )!
+            ),
         
-        .init(
-            id: "2",
-            title: "test 2",
-            videoURL: current.url(forResource: "test_video",
-                                      withExtension: "MOV")!
-        )
+            .init(
+                id: "2",
+                title: "test 2",
+                videoURL: current.url(
+                    forResource: "test_video",
+                    withExtension: "MOV"
+                )!
+            )
     ]
     
     public static let player: AVPlayer = {
@@ -51,6 +61,5 @@ public struct Mockups {
     
     public static let engine: VideoPlayerEngine = .init(asset: asset)
     public static let asset: AVAsset = videoModels[0].asset
-    
     public static let image = Image("kp")
 }

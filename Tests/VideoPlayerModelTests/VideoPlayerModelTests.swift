@@ -3,15 +3,11 @@ import XCTest
 
 final class VideoPlayerModelTests: XCTestCase {
     func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(VideoPlayerModel().text, "Hello, World!")
-        
         deleteAllVideos()
         addNewVideo()
         addNewVideo()
         checkForNumberOfVideos(2)
+        checkMockups()
     }
     
     private func deleteAllVideos() {
@@ -40,5 +36,10 @@ final class VideoPlayerModelTests: XCTestCase {
     
     private func checkForNumberOfVideos(_ number: Int) {
         XCTAssertEqual(AppServices.storage.getVideos().count, number)
+    }
+    
+    private func checkMockups() {
+        Mockups.player
+        Mockups.image
     }
 }
