@@ -34,25 +34,14 @@ public final class VideoPlayerEngine: ObservableObject {
         player = AVPlayer(playerItem: item)
         player.actionAtItemEnd = .pause
         subscribeObservers()
-        loadDuration()
+        Task { await loadDuration() }
     }
     
     deinit {
         playObserver?.invalidate()
     }
     
-    private func play() {
-        if didEnd {
-            player.seek(to: .zero)
-            didEnd = false
-        }
-        
-        player.play()
-    }
-    
-    private func pause() {
-        player.pause()
-    }
+    // MARK: - Public
     
     public func seek(to time: Double) {
         let newTime = CMTime(
@@ -118,14 +107,27 @@ public final class VideoPlayerEngine: ObservableObject {
     }
     
     // MARK: - Private
-
-    private func loadDuration() {
-        Task { [weak self] in
-            let duration = try? await self?.player.currentItem?.asset.load(.duration)
-            Task { @MainActor [weak self] in
-                self?.duration = duration
-            }
+    
+    // MARK: Controls
+    
+    private func play() {
+        if didEnd {
+            player.seek(to: .zero)
+            didEnd = false
         }
+        
+        player.play()
+    }
+    
+    private func pause() {
+        player.pause()
+    }
+    
+    // MARK: Other
+    
+    private func loadDuration() async {
+        let duration = try? await player.currentItem?.asset.load(.duration)
+        self.duration = duration
     }
     
     private func subscribeObservers() {
@@ -135,9 +137,7 @@ public final class VideoPlayerEngine: ObservableObject {
     
     private func subscribeOnPlayChange() {
         playObserver = player.observe(\.rate, options: [.initial, .new]) { [weak self] player, value in
-            Task { @MainActor [weak self] in
-                self?.isPlaying = player.isPlaying
-            }
+            self?.isPlaying = player.isPlaying
         }
     }
     

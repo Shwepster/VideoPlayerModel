@@ -8,6 +8,7 @@
 import AVKit
 import CoreTransferable
 
+// FIXME: Make Sendable
 public struct VideoModel: Identifiable {
     public let id: String
     public var title: String

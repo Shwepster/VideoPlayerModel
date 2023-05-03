@@ -37,7 +37,7 @@ public final class MediaImporter: MediaImporterProtocol {
             return nil
         }
                 
-        storageService.saveVideo(videoModel)
+        await storageService.saveVideoAsync(videoModel)
         return videoModel
     }
     
@@ -51,13 +51,8 @@ public final class MediaImporter: MediaImporterProtocol {
                 return (nil, nil)
             }
             
-            // compress
-            guard let compressedData = image.jpegData(compressionQuality: 0.25),
-                  let compressedImage = UIImage(data: compressedData)
-            else { return (nil, nil) }
-            
-            let imageURL = try compressedData.saveToStorageFile(format: "jpeg")
-            return (compressedImage, imageURL)
+            let imageURL = try imageData.saveToStorageFile(format: "jpeg")
+            return (image, imageURL)
         } catch {
             return (nil, nil)
         }

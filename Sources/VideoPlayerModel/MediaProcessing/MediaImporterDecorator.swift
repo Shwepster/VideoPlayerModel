@@ -49,11 +49,10 @@ public final class MediaImporterPreviewDecorator: MediaImporterDecorator {
             handler.setNext(PreviewCompressorImportingHandler())
             
             let video = await handler.handleVideo(video)
-            
-            storageService.saveVideo(video)
-            return video
-        } else {
+            await storageService.saveVideoAsync(video) // save updated video
             return video
         }
+        
+        return video
     }
 }

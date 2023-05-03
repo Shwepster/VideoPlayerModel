@@ -21,7 +21,11 @@ public enum AppServices {
         return loggerImporter
     }
     
-    public static var logger: Logger = BaseLogger()
+    public static var logger: Logger = {
+        let logger = BaseLogger()
+        logger.isEnabled = false
+        return logger
+    }()
     
     public static var storage: StorageService { .shared }
 }
