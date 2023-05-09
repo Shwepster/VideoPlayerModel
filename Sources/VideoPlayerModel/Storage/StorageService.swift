@@ -23,7 +23,8 @@ public final class StorageService {
             fatalError("Error initializing mom from: \(modelURL)")
         }
 
-        let container = PersistentContainer(name: databaseName, managedObjectModel: mom)
+//        let container = PersistentContainerSynchronized(name: databaseName, managedObjectModel: mom)
+        let container = PersistentContainerActor(name: databaseName, managedObjectModel: mom)
         container.setup()
         return container
     }()
@@ -35,30 +36,77 @@ public final class StorageService {
             .eraseToAnyPublisher()
     }
     
-    public func getVideos() -> [VideoModel] {
-        let models: [VideoCDM] = persistentContainer.getObjects() ?? []
-        return models.map(VideoModel.init)
+    private func test() {
+        Task {
+            let center = NotificationCenter.default
+            let notifications = center.notifications(named: .NSManagedObjectContextDidSave)
+            
+            let filteredNotifications = notifications.filter { notification in
+                !notification.name.rawValue.isEmpty
+            }
+            
+            for await notification in filteredNotifications {
+                print("+++++++++++ \(notification.name)")
+            }
+        }
     }
     
-    public func getVideo(for id: String) -> VideoModel? {
-        let model: VideoCDM? = persistentContainer.getObject(predicate: VideoCDM.objectPredicate(id: id))
-        return model.map(VideoModel.init)
-    }
-    
-    public func saveVideo(_ video: VideoModel) {
-        persistentContainer.createObject(type: VideoCDM.self, data: video)
-    }
-    
-    public func deleteVideo(_ video: VideoModel) {
-        persistentContainer.deleteObjects(
-            of: VideoCDM.self,
-            predicate: VideoCDM.objectPredicate(id: video.id)
-        )
-        
+    public func getVideos() async -> [VideoModel] {
         do {
-            try fileManager.removeItem(at: video.videoURL)
+            let models: [VideoCDM] = try await persistentContainer.getObjects(nil)
+            return models.map(VideoModel.init)
+        } catch {
+            fatalError(error.nsError.localizedDescription)
+        }
+    }
+    
+    public func getVideo(for id: String) async -> VideoModel? {
+        do {
+            let model: VideoCDM? = try await persistentContainer.getObject(predicate: VideoCDM.objectPredicate(id: id))
+            return model.map(VideoModel.init)
+        } catch {
+            fatalError(error.nsError.localizedDescription)
+        }
+    }
+    
+    @available(*, deprecated, message: "Use async version instead")
+    public func saveVideo(_ video: VideoModel) {
+        Task {
+            await saveVideoAsync(video)
+        }
+    }
+    
+    public func saveVideoAsync(_ video: VideoModel) async {
+        do {
+            try await persistentContainer.saveObject(
+                type: VideoCDM.self,
+                data: video,
+                predicate: VideoCDM.objectPredicate(id: video.id)
+            )
+        } catch {
+            fatalError(error.nsError.localizedDescription)
+        }
+    }
+    
+    @available(*, deprecated, message: "Use async version instead")
+    public func deleteVideo(_ video: VideoModel) {
+        Task {
+            await deleteVideoAsync(video)
+        }
+    }
+    
+    public func deleteVideoAsync(_ video: VideoModel) async {
+        do {
+            try await persistentContainer.deleteObjects(
+                of: VideoCDM.self,
+                predicate: VideoCDM.objectPredicate(id: video.id)
+            )
+            
+            try fileManager.removeIfExists(at: video.videoURL)
             guard let imageURL = video.imageURL else { return }
-            try fileManager.removeItem(at: imageURL )
-        } catch {}
+            try fileManager.removeIfExists(at: imageURL )
+        } catch {
+            fatalError("Unresolved error \(error.nsError.localizedDescription), \(error.nsError.userInfo)")
+        }
     }
 }

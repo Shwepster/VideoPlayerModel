@@ -14,10 +14,10 @@ final class ThumbnailCompressorService {
     private init() {}
     
     func findAndCompressAll() {
-        Task {
+        Task.detached(priority: .background) {
             let directory = URL.getDocumentsDirectory()
             do {
-                let content = try manager.contentsOfDirectory(atPath: directory.path())
+                let content = try self.manager.contentsOfDirectory(atPath: directory.path())
                     .filter {
                         $0.hasSuffix(".png") || $0.hasSuffix(".jpeg")
                     }
@@ -25,7 +25,7 @@ final class ThumbnailCompressorService {
                 try content.forEach { name in
                     let url = directory.appending(path: name)
                     print(url)
-                    try compressImage(at: url)
+                    try self.compressImage(at: url)
                 }
                 
                 print(content)
@@ -41,6 +41,6 @@ final class ThumbnailCompressorService {
         else { return }
         
         try data.write(to: url)
-        print("Did compress at:\n\(url)")
+        AppServices.logger.log(event: .compressImage(at: url.path()))
     }
 }

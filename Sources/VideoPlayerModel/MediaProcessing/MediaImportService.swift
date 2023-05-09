@@ -13,7 +13,7 @@ public final class MediaImportService: ObservableObject {
     private let mediaImporter: MediaImporterProtocol
     private let operationQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = 4
+        queue.maxConcurrentOperationCount = 10
         queue.qualityOfService = .background
         return queue
     }()
@@ -33,24 +33,26 @@ public final class MediaImportService: ObservableObject {
     }
     
     private func startImporting(_ mediaSelection: [PhotosPickerItem]) {
+        self.mediaSelection.removeAll()
+        
         let operations = mediaSelection.map {
             MediaImportOperation(media: $0, mediaImporter: mediaImporter)
         }
         
-        self.mediaSelection.removeAll()
-        
         // Create subscribers for import state
         operations.forEach { operation in
-            runningImports[operation.id] = operation.importState.value
+            let operationId = operation.id
+            runningImports[operationId] = operation.importState
             
-            operation.importState
+            operation.$importState
                 .receive(on: DispatchQueue.main)
-                .sink(receiveCompletion: { [weak self] _ in
-                    // Remove when import is finished
-                    self?.runningImports.removeValue(forKey: operation.id)
-                }, receiveValue: { [weak self] state in
-                    self?.runningImports[operation.id] = state
-                })
+                .sink { [weak self] state in
+                    self?.runningImports[operationId] = state
+                    
+                    if case .loaded = state {
+                        self?.runningImports.removeValue(forKey: operationId)
+                    }
+                }
                 .store(in: &subscriptions)
         }
         

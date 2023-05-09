@@ -45,4 +45,8 @@ extension Event {
     static func imageImportedSuccess(path: String) -> Self {
         .init(name: "Image imported success", parameters: ["path": path])
     }
+    
+    static func compressImage(at path: String) -> Self {
+        .init(name: "Compressed image", parameters: ["path": path])
+    }
 }

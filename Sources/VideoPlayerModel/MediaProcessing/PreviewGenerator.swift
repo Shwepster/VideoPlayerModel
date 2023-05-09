@@ -15,7 +15,7 @@ public final class PreviewGenerator {
         let image = await video.asset.generateThumbnail()
         let thumbnailName = "\(video.id)_thumbnail"
         let thumbnailURL = try? image?
-            .jpegData(compressionQuality: 0.25)?
+            .jpegData(compressionQuality: 1)?
             .saveToStorageFile(name: thumbnailName, format: "jpeg")
         return thumbnailURL
     }
