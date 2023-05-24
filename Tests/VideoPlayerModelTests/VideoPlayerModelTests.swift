@@ -3,7 +3,7 @@ import XCTest
 
 final class VideoPlayerModelTests: XCTestCase {
     func testExample() async throws {
-        checkMockups()
+        checkMockupsCreation()
         await deleteAllVideos()
         await addNewVideo()
         await addNewVideo()
@@ -28,7 +28,6 @@ final class VideoPlayerModelTests: XCTestCase {
     
     private func addNewVideo() async {
         let storage = AppServices.storage
-//        let previousCount = await storage.getVideos().count
         
         let video = VideoModel(
             id: UUID().uuidString,
@@ -36,11 +35,7 @@ final class VideoPlayerModelTests: XCTestCase {
             videoURL: URL.getPath(for: "test.MOV")
         )
         
-        // Add video
         await storage.saveVideoAsync(video)
-        
-        // Check if added
-//        await checkForNumberOfVideos(previousCount + 1)
     }
     
     private func checkForNumberOfVideos(_ number: Int) async {
@@ -51,8 +46,6 @@ final class VideoPlayerModelTests: XCTestCase {
     }
     
     private func testConcurrentAdding(number: Int) {
-        let storage = AppServices.storage
-        
         for _ in 0..<number {
             Task.detached(priority: .medium) {
                 await self.addNewVideo()
@@ -60,7 +53,7 @@ final class VideoPlayerModelTests: XCTestCase {
         }
     }
     
-    private func checkMockups() {
+    private func checkMockupsCreation() {
         Mockups.player
         Mockups.image
     }
