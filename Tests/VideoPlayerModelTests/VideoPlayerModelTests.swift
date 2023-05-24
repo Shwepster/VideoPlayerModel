@@ -13,6 +13,9 @@ final class VideoPlayerModelTests: XCTestCase {
         testConcurrentAdding(number: 100)
         try await Task.sleep(for: .seconds(2))
         await checkForNumberOfVideos(102)
+        
+        let error = XCTestError(_nsError: .init(domain: "Fuck", code: 90))
+        XCTFail(error.localizedDescription)
     }
     
     private func deleteAllVideos() async {
