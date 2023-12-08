@@ -9,7 +9,7 @@ import AVKit
 import CoreTransferable
 
 // FIXME: Make Sendable
-public struct VideoModel: Identifiable {
+public struct VideoModel: Identifiable, Sendable {
     public let id: String
     public var title: String
     public let videoURL: URL

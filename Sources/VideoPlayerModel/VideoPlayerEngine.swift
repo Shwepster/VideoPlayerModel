@@ -127,7 +127,9 @@ public final class VideoPlayerEngine: ObservableObject {
     
     private func loadDuration() async {
         let duration = try? await player.currentItem?.asset.load(.duration)
-        self.duration = duration
+        await MainActor.run {
+            self.duration = duration
+        }
     }
     
     private func subscribeObservers() {
